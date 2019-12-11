@@ -4,35 +4,34 @@ using UnityEngine;
 
 public class Slingshot : MonoBehaviour
 {
-    [Header("Set in Inspector")]
     public GameObject launchPoint = null;
     public GameObject projectilePrefab = null;
-    public float velocityMult = 8f;
 
-    [Header("Set Dynamically")]
-    private GameObject projectile = null;
-    private Rigidbody rigidbodyProjectile;
-    private Vector2 mousePosition;
-    private Vector2 launchPosition;
-    private Vector2 mouseDelta;
-
-    private float maxMagnitude;
+    private GameObject _projectileObject = null;
+    private Projectile Projectile;
+    private Vector2 _mousePosition;
+    private Vector2 _launchPosition;
+    private Vector2 _mouseDelta;
+    private float _maxMagnitude;
+    private bool _isLaunhProjectile = false;
 
     private void Awake()
     {
-        launchPosition = launchPoint.transform.position;
-        maxMagnitude = GetComponent<CircleCollider2D>().radius;
+        _launchPosition = launchPoint.transform.position;
+        _maxMagnitude = GetComponent<CircleCollider2D>().radius;
     }
-
-    private void OnMouseDown()
-    {
-        launchPoint.SetActive(true);
-        CreateProjectile();
-    }
-
+    
     private void OnMouseDrag()
     {
-        CalculateProjectilePosition();
+        if (_projectileObject == null)
+        {
+            launchPoint.SetActive(true);
+            CreateProjectile();
+        }
+        else if (_isLaunhProjectile == false)
+        {
+            CalculateProjectilePosition();
+        }
     }
 
     private void OnMouseUp()
@@ -43,37 +42,28 @@ public class Slingshot : MonoBehaviour
 
     private void CreateProjectile()
     {
-        mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        projectile = Instantiate(projectilePrefab, mousePosition, Quaternion.identity);
-        rigidbodyProjectile = projectile.GetComponent<Rigidbody>();
-        rigidbodyProjectile.isKinematic = true;
+        _isLaunhProjectile = false;
+        _mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        _projectileObject = Instantiate(projectilePrefab, _mousePosition, Quaternion.identity);
+        Projectile = _projectileObject.GetComponent<Projectile>();
     }
 
     private void CalculateProjectilePosition()
     {
-        mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseDelta = mousePosition - launchPosition;
-        Debug.Log("(1) mouseDealta = mousePos - launchPos" + mouseDelta + " = " + mousePosition + " - " + launchPosition);
-        Debug.Log("(2) mouseDelta.magnitude" + mouseDelta.magnitude);
-
-        if (mouseDelta.sqrMagnitude > maxMagnitude*maxMagnitude)
+        _mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        _mouseDelta = _mousePosition - _launchPosition;
+        if (_mouseDelta.sqrMagnitude > _maxMagnitude*_maxMagnitude)
         {
-            mouseDelta.Normalize();       
-            mouseDelta *= maxMagnitude;
+            _mouseDelta.Normalize();       
+            _mouseDelta *= _maxMagnitude;
         }
+        Vector2 newPosition = _launchPosition + _mouseDelta;
 
-        Vector2 newPosition = launchPosition + mouseDelta;
-        Debug.Log("(3) newPosition" + newPosition);
-        projectile.transform.position = newPosition;
+        Projectile.Position = newPosition;
     }
     private void LaunchProjectile()
     {
-        // Debug.Log(mouseDelta);
-        // Debug.Log(maxMagnitude);
-
-        rigidbodyProjectile.isKinematic = false;
-        rigidbodyProjectile.velocity = -mouseDelta * velocityMult;
-        projectile = null;
+        _isLaunhProjectile = true;
+        Projectile.SetVelocity(_mouseDelta);
     }
-
 }
