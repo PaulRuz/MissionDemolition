@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class Wall : MonoBehaviour
 {
-    private Rigidbody ThisRigidbody = null;
+    private Rigidbody _thisRigidbody = null;
 
     private void Awake()
     {
-        ThisRigidbody = GetComponent<Rigidbody>();
-        if (ThisRigidbody)
+        _thisRigidbody = GetComponent<Rigidbody>();
+        if (_thisRigidbody)
         {
-            ThisRigidbody.Sleep();
+            _thisRigidbody.Sleep();
         }
     }
 

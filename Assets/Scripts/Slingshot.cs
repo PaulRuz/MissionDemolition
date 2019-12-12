@@ -7,16 +7,18 @@ public class Slingshot : MonoBehaviour
     public GameObject launchPoint = null;
     public GameObject projectilePrefab = null;
 
+    private Camera _sceneCamera = null;
     private GameObject _projectileObject = null;
     private Projectile Projectile;
     private Vector2 _mousePosition;
     private Vector2 _launchPosition;
     private Vector2 _mouseDelta;
     private float _maxMagnitude;
-    private bool _isLaunhProjectile = false;
+    private bool _isLaunchProjectile = false;
 
     private void Awake()
     {
+        _sceneCamera = Camera.main;
         _launchPosition = launchPoint.transform.position;
         _maxMagnitude = GetComponent<CircleCollider2D>().radius;
     }
@@ -28,7 +30,7 @@ public class Slingshot : MonoBehaviour
             launchPoint.SetActive(true);
             CreateProjectile();
         }
-        else if (_isLaunhProjectile == false)
+        else if (_isLaunchProjectile == false)
         {
             CalculateProjectilePosition();
         }
@@ -36,21 +38,25 @@ public class Slingshot : MonoBehaviour
 
     private void OnMouseUp()
     {
-        launchPoint.SetActive(false);
-        LaunchProjectile();
+        if (_isLaunchProjectile == false)
+        {
+            launchPoint.SetActive(false);
+            LaunchProjectile();
+        }
+      
     }
 
     private void CreateProjectile()
     {
-        _isLaunhProjectile = false;
-        _mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        _isLaunchProjectile = false;
+        _mousePosition = _sceneCamera.ScreenToWorldPoint(Input.mousePosition);
         _projectileObject = Instantiate(projectilePrefab, _mousePosition, Quaternion.identity);
         Projectile = _projectileObject.GetComponent<Projectile>();
     }
 
     private void CalculateProjectilePosition()
     {
-        _mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        _mousePosition = _sceneCamera.ScreenToWorldPoint(Input.mousePosition);
         _mouseDelta = _mousePosition - _launchPosition;
         if (_mouseDelta.sqrMagnitude > _maxMagnitude*_maxMagnitude)
         {
@@ -63,7 +69,7 @@ public class Slingshot : MonoBehaviour
     }
     private void LaunchProjectile()
     {
-        _isLaunhProjectile = true;
+        _isLaunchProjectile = true;
         Projectile.SetVelocity(_mouseDelta);
     }
 }

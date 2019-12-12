@@ -9,28 +9,28 @@ public class Projectile : MonoBehaviour
 
     private float _lifeTime = 10f;
     private float _minVelocity = 0.003f;
-    private FollowCamera followCamera = null;
-    private Rigidbody ThisRigidbody = null;
+    private FollowCamera _followCamera = null;
+    private Rigidbody _thisRigidbody = null;
 
     public Vector3 Position
     {
-        get { return transform.position; }
-        set { transform.position = value; }
+        get => transform.position; 
+        set => transform.position = value; 
     }
 
     private void Awake()
     {
-        followCamera = Camera.main.GetComponent<FollowCamera>();
-        ThisRigidbody = GetComponent<Rigidbody>();
-        ThisRigidbody.isKinematic = true;
+        _followCamera = Camera.main.GetComponent<FollowCamera>();
+        _thisRigidbody = GetComponent<Rigidbody>();
+        _thisRigidbody.isKinematic = true;
         StartCoroutine(CountLifeTime(_lifeTime));
     }
 
     private void FixedUpdate()
     {
-        if (!ThisRigidbody.isKinematic)
+        if (!_thisRigidbody.isKinematic)
         {
-            Vector2 velocity = (Vector2)ThisRigidbody.velocity;
+            Vector2 velocity = (Vector2)_thisRigidbody.velocity;
             float sqrVelocity = velocity.sqrMagnitude;
             if (sqrVelocity <= _minVelocity)
             {
@@ -41,9 +41,9 @@ public class Projectile : MonoBehaviour
 
     public void SetVelocity(Vector2 mouseDelta)
     {
-        followCamera.Target = gameObject;
-        ThisRigidbody.isKinematic = false;
-        ThisRigidbody.velocity = -mouseDelta * velocityMult;
+        _followCamera.Target = gameObject;
+        _thisRigidbody.isKinematic = false;
+        _thisRigidbody.velocity = -mouseDelta * velocityMult;
     }
 
     private IEnumerator CountLifeTime(float lifeTime)
@@ -54,6 +54,6 @@ public class Projectile : MonoBehaviour
 
     private void OnDestroy()
     {
-        followCamera.Target = null;
+        _followCamera.Target = null;
     }
 }
